@@ -1,0 +1,78 @@
+stages:
+  - build
+  - test
+  - report
+
+.docker-build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build -t $TAG --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -f $DOCKERFILE .
+    - docker push $TAG
+
+docker:build:cypress:
+  extends: .docker-build
+  variables:
+    DOCKERFILE: cypress/support/Dockerfile
+    TAG: $CI_REGISTRY_IMAGE:cypress-$CI_COMMIT_SHA
+
+docker:build:db:
+  extends: .docker-build
+  variables:
+    DOCKERFILE: ecommerce-app/Dockerfile.db
+    TAG: $CI_REGISTRY_IMAGE:db-$CI_COMMIT_SHA
+
+docker:build:wordpress:
+  extends: .docker-build
+  variables:
+    DOCKERFILE: ecommerce-app/Dockerfile.app
+    TAG: $CI_REGISTRY_IMAGE:webapp-$CI_COMMIT_SHA
+
+test:
+  stage: test
+  image: $CI_REGISTRY_IMAGE:cypress-$CI_COMMIT_SHA
+  allow_failure: true
+  variables:
+    CYPRESS_baseUrl: http://wordpress:80
+    WORDPRESS_DB_HOST: db:3306
+    WORDPRESS_DB_USER: wordpress
+    WORDPRESS_DB_PASSWORD: wordpress
+    WORDPRESS_DB_NAME: wordpress
+    MYSQL_RANDOM_ROOT_PASSWORD: random
+    MYSQL_DATABASE: wordpress
+    MYSQL_PASSWORD: wordpress
+    MYSQL_USER: wordpress
+  services:
+    - name: $CI_REGISTRY_IMAGE:db-$CI_COMMIT_SHA
+      alias: db
+    - name: $CI_REGISTRY_IMAGE:webapp-$CI_COMMIT_SHA
+      alias: wordpress
+  script:
+    - yarn
+    - yarn cy:run-headless:chrome
+  artifacts:
+    when: always
+    paths:
+      - cypress/results
+      - node_modules/
+
+report-mocha:
+  stage: report
+  image: $CI_REGISTRY_IMAGE:cypress-$CI_COMMIT_SHA
+  script:
+    - yarn cy:merge-results
+    - yarn cy:report
+    - aws s3 sync ./cypress/results s3://cicd-cypress/reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress || true
+    - aws s3api put-object-acl --bucket cicd-cypress --key reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress/mochawesome.html --acl public-read
+    - echo "Find the report here https://cicd-cypress.s3.us-east-1.amazonaws.com/reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress/mochawesome.html"
+    - node cypress/support/check-failures.js
+  artifacts:
+    when: always
+    paths:
+      - cypress/results
+      - node_modules/

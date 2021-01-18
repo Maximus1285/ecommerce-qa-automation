@@ -4,6 +4,9 @@ import urls from '../../../support/urls';
 
 describe('Accessories Page', () => {
   beforeEach(() => {
+    console.log('TEST Variables');
+    console.log(`*********** username: ${Cypress.env('username')}`);
+    console.log(`*********** password: ${Cypress.env('password')}`);
     cy.deleteCustomProducts();
     cy.getProductCategories().then((response) => {
       const category = Array.from(response.body).find((obj) => obj.name === 'Accessories');

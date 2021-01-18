@@ -1,0 +1,3 @@
+FROM atfuentess/qa-automation:db_automation
+COPY ecommerce-app/data/dump.sql /docker-entrypoint-initdb.d
+RUN docker-entrypoint.sh /bin/true
