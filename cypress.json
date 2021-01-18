@@ -1,0 +1,21 @@
+{
+  "viewportWidth": 1280,
+  "viewportHeight": 1024,
+  "requestTimeout": 15000,
+  "responseTimeout": 15000,
+  "defaultCommandTimeout": 15000,
+  "baseUrl": "http://localhost:8000",
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "cypress/results",
+    "overwrite": false,
+    "html": false,
+    "json": true,
+    "timestamp": "mmddyyyy_HHMMss",
+    "showSkipped": true,
+    "charts": true
+  },
+  "screenshotsFolder": "cypress/results/assets",
+  "videosFolder": "cypress/results/assets/videos",
+  "watchForFileChanges": false
+}
