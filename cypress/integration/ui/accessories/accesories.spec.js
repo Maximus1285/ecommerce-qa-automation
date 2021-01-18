@@ -2,17 +2,9 @@
 
 import urls from '../../../support/urls';
 
-context('Accessories Page', () => {
-  const deleteProducts = () => {
-    cy.getProducts().then((response) => {
-      Array.from(response.body)
-        .filter((product) => product.name.includes('Cypress'))
-        .forEach((product) => cy.deleteProduct(product.id));
-    });
-  };
-
+describe('Accessories Page', () => {
   beforeEach(() => {
-    deleteProducts();
+    cy.deleteCustomProducts();
     cy.getProductCategories().then((response) => {
       const category = Array.from(response.body).find((obj) => obj.name === 'Accessories');
       cy.createProduct({

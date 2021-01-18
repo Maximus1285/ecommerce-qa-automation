@@ -34,3 +34,11 @@ Cypress.Commands.add('deleteProduct', (productId) => {
     qs: { force: true },
   });
 });
+
+Cypress.Commands.add('deleteCustomProducts', () => {
+  return cy.getProducts().then((response) => {
+    Array.from(response.body)
+      .filter((product) => product.name.includes('Cypress'))
+      .forEach((product) => cy.deleteProduct(product.id));
+  });
+});

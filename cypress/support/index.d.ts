@@ -30,5 +30,12 @@ declare namespace Cypress {
      * cy.deleteProduct(1)
      */
     deleteProduct(productId: number): Chainable<any>;
+
+    /**
+     * Deletes all custom products
+     * @example
+     * cy.deleteCustomProducts()
+     */
+    deleteCustomProducts(): Chainable<any>;
   }
 }
