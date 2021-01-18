@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-qa-automation-ui",
+  "version": "1.0.0",
+  "description": "End to end tests for the UI of the application",
+  "main": "index.js",
+  "repository": "https://github.com/Maximus1285/ecommerce-qa-automation-ui.git",
+  "author": "Marco Sanabria <marco.sanabria@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "cy:open": "./node_modules/cypress/bin/cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^6.2.1"
+  }
+}
