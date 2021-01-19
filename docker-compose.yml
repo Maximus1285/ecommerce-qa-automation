@@ -20,8 +20,8 @@ services:
     depends_on:
       - db
     image: atfuentess/qa-automation:wordpress_automation
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
     restart: always
     environment:
       WORDPRESS_DB_HOST: db:3306
@@ -36,7 +36,6 @@ services:
       - ./cypress.json:/app/cypress.json
       - ./package.json:/app/package.json
       - ./yarn.lock:/app/yarn.lock
-      - ./node_modules/:/app/node_modules/
     depends_on:
       - wordpress
       - db

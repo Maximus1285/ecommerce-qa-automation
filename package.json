@@ -9,7 +9,7 @@
   "private": false,
   "scripts": {
     "cy:open": "./node_modules/cypress/bin/cypress open",
-    "cy:run-headless:chrome": "./node_modules/cypress/bin/cypress run --headless --browser chrome",
+    "cy:run:chrome": "./node_modules/cypress/bin/cypress run --browser chrome",
     "cy:run-headless:firefox": "./node_modules/cypress/bin/cypress run --headless --browser firefox",
     "cy:merge-results": "./node_modules/.bin/mochawesome-merge cypress/results/*.json > cypress/results/mochawesome-full.json",
     "cy:report": "./node_modules/.bin/marge -o cypress/results --cdn cypress/results/mochawesome-full.json"

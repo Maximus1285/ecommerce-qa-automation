@@ -15,14 +15,15 @@ describe('Accessories Page', () => {
         categories: [{ id: category.id }],
       }).as('product');
     });
-    cy.visit(urls.accessoriesPage);
   });
 
   it('should show accessories in the breadcrumbs', () => {
+    cy.visit(urls.accessoriesPage, { timeout: 60000 });
     cy.get('.woocommerce-breadcrumb').should('contain.text', 'Accessories');
   });
 
   it('should add a product to cart from accessories', () => {
+    cy.visit(urls.accessoriesPage);
     cy.get('@product').then((product) => {
       cy.get('.product').then(($products) => {
         const cypressProduct = $products.toArray().find(($product) => $product.textContent.includes(product.body.name));
