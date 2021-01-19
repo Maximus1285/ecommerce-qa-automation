@@ -8,9 +8,16 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "cy:open": "./node_modules/cypress/bin/cypress open"
+    "cy:open": "./node_modules/cypress/bin/cypress open",
+    "cy:run:chrome": "./node_modules/cypress/bin/cypress run --browser chrome",
+    "cy:run-headless:firefox": "./node_modules/cypress/bin/cypress run --headless --browser firefox",
+    "cy:merge-results": "./node_modules/.bin/mochawesome-merge cypress/results/*.json > cypress/results/mochawesome-full.json",
+    "cy:report": "./node_modules/.bin/marge -o cypress/results --cdn cypress/results/mochawesome-full.json"
   },
   "devDependencies": {
-    "cypress": "^6.2.1"
+    "cypress": "^6.2.1",
+    "mochawesome": "^6.2.1",
+    "mochawesome-merge": "^4.2.0",
+    "mochawesome-report-generator": "^5.1.0"
   }
 }

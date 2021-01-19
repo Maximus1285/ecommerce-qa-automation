@@ -16,5 +16,31 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // returning false here prevents Cypress from
+  // failing the test
+  return false;
+});
+
+// To add screenshot to the generated report for failing tests only
+Cypress.on('test:after:run', (test, runnable) => {
+  if (test.state === 'failed') {
+    const parent = runnable.parent;
+    const title = test.title;
+    if (title.charAt(title.length - 1) === '.') {
+      title = title.slice(0, -1);
+    }
+    let screenshotFileName = `${formatTitle(parent.title)} -- ${title}`;
+    while (parent.parent) {
+      parent = parent.parent;
+      if (parent.title) {
+        screenshotFileName = `${formatTitle(parent.title)} -- ${screenshotFileName}`;
+      }
+    }
+    const specLocation = Cypress.spec.relative.split('cypress/integration/')[1];
+    if (!test.hasOwnProperty('failedFromHookId')) {
+      addContext({ test }, `assets/${specLocation}/${screenshotFileName} (failed).png`);
+    }
+    addContext({ test }, `assets/videos/${specLocation}.mp4`);
+  }
+});

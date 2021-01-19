@@ -1,0 +1,57 @@
+stages:
+  - build
+  - test
+  - report
+
+.docker-build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build -t $TAG --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -f $DOCKERFILE .
+    - docker push $TAG
+
+docker:build:cypress:
+  extends: .docker-build
+  variables:
+    DOCKERFILE: cypress/support/Dockerfile
+    TAG: $CI_REGISTRY_IMAGE:cypress
+
+docker:build:report:
+  extends: .docker-build
+  variables:
+    DOCKERFILE: cypress/support/Dockerfile.report
+    TAG: $CI_REGISTRY_IMAGE:report
+
+test:
+  stage: test
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  allow_failure: true
+  script:
+    - docker-compose up --build --abort-on-container-exit cypress
+  artifacts:
+    when: always
+    paths:
+      - cypress/results
+
+report:
+  stage: report
+  image: $CI_REGISTRY_IMAGE:report
+  script:
+    - yarn
+    - yarn cy:merge-results
+    - yarn cy:report
+    - aws s3 sync ./cypress/results s3://cicd-cypress/reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress || true
+    - aws s3api put-object-acl --bucket cicd-cypress --key reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress/mochawesome-full.html --acl public-read
+    - echo "Find the report here https://cicd-cypress.s3.us-east-1.amazonaws.com/reports/$CI_PROJECT_PATH/$CI_PIPELINE_ID/cypress/mochawesome-full.html"
+    # - node cypress/support/check-failures.js
+  artifacts:
+    when: always
+    paths:
+      - cypress/results
