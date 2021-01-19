@@ -22,6 +22,8 @@ services:
     image: atfuentess/qa-automation:wordpress_automation
     expose:
       - "80"
+    ports:
+      - "8000:80"
     restart: always
     environment:
       WORDPRESS_DB_HOST: db:3306
